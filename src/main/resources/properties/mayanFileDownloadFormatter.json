@@ -1,0 +1,50 @@
+[{
+    "title" : "@@org.joget.marketplace.mayan.formatter@@",
+    "properties" : [
+        
+        {
+            "name":"enableDownload",
+            "label":"@@org.joget.marketplace.mayan.formatter.enableDownload@@",
+            "type":"checkbox",
+            "value":"False",
+            "options":[
+               {
+                  "value":"true",
+                  "label":""
+               }
+            ]
+         },
+        
+        {
+            "label" : "@@org.joget.marketplace.mayan.formatter.credentials@@",
+            "type" : "header",
+            "control_field":"enableDownload",
+            "control_value":"true"
+        },
+        {
+            "name" : "serverUrl",
+            "label" : "@@org.joget.marketplace.mayan.formatter.serverUrl@@",
+            "type" : "textfield",
+            "required" : "True",
+            "control_field":"enableDownload",
+            "control_value":"true"
+        },
+        {
+            "name" : "username",
+            "label" : "@@org.joget.marketplace.mayan.formatter.username@@",
+            "type" : "textfield",
+            "required" : "True",
+            "control_field":"enableDownload",
+            "control_value":"true"
+        },
+        {
+            "name" : "password",
+            "label" : "@@org.joget.marketplace.mayan.formatter.password@@",
+            "type" : "password",
+            "required" : "True",
+            "control_field":"enableDownload",
+            "control_value":"true"
+        }
+    ]
+}]
+

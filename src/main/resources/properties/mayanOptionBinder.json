@@ -1,0 +1,74 @@
+[{
+    "title" : "@@org.joget.marketplace.mayan.optionbinder.settings@@",
+    "properties" : [
+            
+         {
+            "label" : "@@org.joget.marketplace.mayan.optionbinder.options@@",
+            "type" : "header"
+        },   
+        
+        {
+            "name":"mayan_options",
+            "label":"@@org.joget.marketplace.mayan.optionbinder.option@@",
+            "type":"selectbox",
+            "required":"True",
+            "options":[
+               {
+                 "value": "",
+                 "label": ""
+               }, 
+               {
+                  "value":"CABINETS",
+                  "label":"Cabinets"
+               },
+               {
+                  "value":"DOC_TYPES",
+                  "label":"Document Types"
+               },
+               {
+                  "value":"TAGS",
+                  "label":"Tags"
+               }
+            ]
+         },
+         
+         {
+            "name" : "addEmptyOption",
+            "label" : "@@org.joget.marketplace.mayan.optionbinder.addEmptyOption@@",
+            "type" : "checkbox",
+            "value" : "true",
+            "options" : [{
+                "value" : "true",
+                "label" : ""
+            }]
+        },
+        {
+            "name" : "emptyLabel",
+            "label" : "@@org.joget.marketplace.mayan.optionbinder.emptyLabel@@",
+            "type" : "textfield"
+        },
+        
+        {
+            "label" : "@@org.joget.marketplace.mayan.optionbinder.credentials@@",
+            "type" : "header"
+        },
+        {
+            "name" : "serverUrl",
+            "label" : "@@org.joget.marketplace.mayan.optionbinder.serverUrl@@",
+            "type" : "textfield",
+            "required" : "True"
+        },
+        {
+            "name" : "username",
+            "label" : "@@org.joget.marketplace.mayan.optionbinder.username@@",
+            "type" : "textfield",
+            "required" : "True"
+        },
+        {
+            "name" : "password",
+            "label" : "@@org.joget.marketplace.mayan.optionbinder.password@@",
+            "type" : "password",
+            "required" : "True"
+        }
+    ]
+}]

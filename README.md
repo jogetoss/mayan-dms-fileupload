@@ -1,6 +1,13 @@
 # Description
 
-This repository is meant to serve as a general template for how to set up new repositories in the JogetOSS organization. 
+Mayan Electronic Document Management System (Mayan EDMS) is an open-source document management platform designed for organizations to efficiently store, organize, and manage digital documents. It offers features such as document versioning, workflow automation, and secure access control.
+
+Mayan DMS File Upload plugin allows user to seamlessly upload and download documents to/from Mayan EDMS. There are three components of this plugin.
+
+1. Mayan File Upload - Upload & Download
+2. Mayan Option Binder - Allows user to populate the values of Document Types, Cabinets and Tags from Mayan EDMS.
+3. Mayan File Formatter - Allow user to format the filename and download the file directly from the datalist.
+
 
 # Getting Help
 
