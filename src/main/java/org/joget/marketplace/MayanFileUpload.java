@@ -476,7 +476,7 @@ public class MayanFileUpload extends Element implements FormBuilderPaletteElemen
 
     @Override
     public String getFormBuilderCategory() {
-        return FormBuilderPalette.CATEGORY_CUSTOM;
+        return "Marketplace";
     }
 
     @Override
