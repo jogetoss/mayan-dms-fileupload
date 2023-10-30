@@ -1,7 +1,6 @@
 package org.joget.marketplace;
 
 import com.google.common.net.HttpHeaders;
-import org.joget.apps.form.lib.*;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -40,7 +39,6 @@ import org.apache.http.util.EntityUtils;
 
 import org.joget.apps.form.model.Form;
 import org.joget.apps.form.model.FormBuilderPaletteElement;
-import org.joget.apps.form.model.FormBuilderPalette;
 import org.joget.apps.form.model.FormData;
 import org.joget.apps.form.model.FormPermission;
 import org.joget.apps.form.model.FormRow;
@@ -96,10 +94,9 @@ public class MayanFileUpload extends Element implements FormBuilderPaletteElemen
         // set value
         String[] values = FormUtil.getElementPropertyValues(this, formData);
 
-        Map<String, String> tempFilePaths = new LinkedHashMap<String, String>();
-        Map<String, String> filePaths = new LinkedHashMap<String, String>();
+        Map<String, String> tempFilePaths = new LinkedHashMap<>();
+        Map<String, String> filePaths = new LinkedHashMap<>();
 
-        String primaryKeyValue = getPrimaryKeyValue(formData);
         String filePathPostfix = "_path";
         String id = FormUtil.getElementParameterName(this);
 
@@ -116,10 +113,9 @@ public class MayanFileUpload extends Element implements FormBuilderPaletteElemen
             }
         }
 
-        String formDefId = "";
         Form form = FormUtil.findRootForm(this);
         if (form != null) {
-            formDefId = form.getPropertyString(FormUtil.PROPERTY_ID);
+            form.getPropertyString(FormUtil.PROPERTY_ID);
         }
         String appId = "";
         String appVersion = "";
@@ -203,7 +199,7 @@ public class MayanFileUpload extends Element implements FormBuilderPaletteElemen
             String[] tempFilenames = formData.getRequestParameterValues(id);
             String[] tempExisting = formData.getRequestParameterValues(id + filePathPostfix);
 
-            List<String> filenames = new ArrayList<String>();
+            List<String> filenames = new ArrayList<>();
             if (tempFilenames != null && tempFilenames.length > 0) {
                 filenames.addAll(Arrays.asList(tempFilenames));
             }
@@ -583,6 +579,7 @@ public class MayanFileUpload extends Element implements FormBuilderPaletteElemen
         return url;
     }
 
+    @Override
     public void webService(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String nonce = request.getParameter("_nonce");
         String paramName = request.getParameter("_paramName");
@@ -678,7 +675,7 @@ public class MayanFileUpload extends Element implements FormBuilderPaletteElemen
 
     @Override
     public Set<String> getOfflineStaticResources() {
-        Set<String> urls = new HashSet<String>();
+        Set<String> urls = new HashSet<>();
         String contextPath = AppUtil.getRequestContextPath();
         urls.add(contextPath + "/js/dropzone/dropzone.css");
         urls.add(contextPath + "/js/dropzone/dropzone.js");

@@ -1,8 +1,6 @@
 package org.joget.marketplace;
 
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.http.HttpHeaders;
 import org.apache.http.ParseException;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -49,7 +47,7 @@ public class MayanOptionBinder extends FormBinder implements FormLoadOptionsBind
 
         if (!formBuilderActive) {
             if (OPT_CABINETS.equalsIgnoreCase(options)) {
-                String url = serverUrl + "/api/v4/cabinets/?_ordering=label";
+                String url = serverUrl + "/api/v4/cabinets/?_ordering=label&page_size=999999999";
                 CloseableHttpClient httpClient = HttpClients.createDefault();
 
                 try {
@@ -58,39 +56,39 @@ public class MayanOptionBinder extends FormBinder implements FormLoadOptionsBind
                     byte[] encodedAuth = java.util.Base64.getEncoder().encode(auth.getBytes());
                     String authHeader = "Basic " + new String(encodedAuth);
                     httpGet.setHeader(HttpHeaders.AUTHORIZATION, authHeader);
-                    CloseableHttpResponse response = httpClient.execute(httpGet);
-                    int statusCode = response.getStatusLine().getStatusCode();
-                    if (statusCode == 200) { // HTTP 200 OK
-                        // Parse and print the response content
-                        String responseBody = EntityUtils.toString(response.getEntity());
-                        JSONObject jSONObject = new JSONObject(responseBody);
-                        JSONArray array = (JSONArray) jSONObject.get("results");
+                    try ( CloseableHttpResponse response = httpClient.execute(httpGet)) {
+                        int statusCode = response.getStatusLine().getStatusCode();
+                        if (statusCode == 200) {
+                            // HTTP 200 OK
+                            // Parse and print the response content
+                            String responseBody = EntityUtils.toString(response.getEntity());
+                            JSONObject jSONObject = new JSONObject(responseBody);
+                            JSONArray array = (JSONArray) jSONObject.get("results");
 
-                        if ("true".equals(getPropertyString("addEmptyOption"))) {
-                            FormRow emptyRow = new FormRow();
-                            emptyRow.setProperty(FormUtil.PROPERTY_VALUE, "");
-                            emptyRow.setProperty(FormUtil.PROPERTY_LABEL, getPropertyString("emptyLabel"));
-                            results.add(emptyRow);
-                        }
-
-                        for (int i = 0; i < array.length(); i++) {
-                            FormRow r = new FormRow();
-                            JSONObject cabinet = (JSONObject) array.get(i);
-                            int id = (int) cabinet.get("id");
-                            String label = (String) cabinet.get("label");
-                            if (cabinet.get("parent_id") != null) {
-                                label = (String) cabinet.get("full_path");
+                            if ("true".equals(getPropertyString("addEmptyOption"))) {
+                                FormRow emptyRow = new FormRow();
+                                emptyRow.setProperty(FormUtil.PROPERTY_VALUE, "");
+                                emptyRow.setProperty(FormUtil.PROPERTY_LABEL, getPropertyString("emptyLabel"));
+                                results.add(emptyRow);
                             }
-                            r.setProperty(FormUtil.PROPERTY_VALUE, String.valueOf(id));
-                            r.setProperty(FormUtil.PROPERTY_LABEL, label);
-                            results.add(r);
-                        }
-                    } else {
-                        System.err.println("HTTP Request failed with status code: " + statusCode);
-                    }
 
-                    // Ensure the response is closed properly
-                    response.close();
+                            for (int i = 0; i < array.length(); i++) {
+                                FormRow r = new FormRow();
+                                JSONObject cabinet = (JSONObject) array.get(i);
+                                int id = (int) cabinet.get("id");
+                                String label = (String) cabinet.get("label");
+                                if (cabinet.get("parent_id") != null) {
+                                    label = (String) cabinet.get("full_path");
+                                }
+                                r.setProperty(FormUtil.PROPERTY_VALUE, String.valueOf(id));
+                                r.setProperty(FormUtil.PROPERTY_LABEL, label);
+                                results.add(r);
+                            }
+                        } else {
+                            System.err.println("HTTP Request failed with status code: " + statusCode);
+                        }
+                        // Ensure the response is closed properly
+                    }
                 } catch (IOException | ParseException ex) {
                     LogUtil.error(getClassName(), ex, ex.getMessage());
                 } finally {
@@ -101,7 +99,7 @@ public class MayanOptionBinder extends FormBinder implements FormLoadOptionsBind
                     }
                 }
             } else if (OPT_DOC_TYPES.equalsIgnoreCase(options)) {
-                String url = serverUrl + "/api/v4/document_types/?_ordering=label";
+                String url = serverUrl + "/api/v4/document_types/?_ordering=label&page_size=999999999";
                 CloseableHttpClient httpClient = HttpClients.createDefault();
 
                 try {
@@ -110,37 +108,37 @@ public class MayanOptionBinder extends FormBinder implements FormLoadOptionsBind
                     byte[] encodedAuth = java.util.Base64.getEncoder().encode(auth.getBytes());
                     String authHeader = "Basic " + new String(encodedAuth);
                     httpGet.setHeader(HttpHeaders.AUTHORIZATION, authHeader);
-                    CloseableHttpResponse response = httpClient.execute(httpGet);
-                    int statusCode = response.getStatusLine().getStatusCode();
-                    if (statusCode == 200) { // HTTP 200 OK
-                        // Parse and print the response content
-                        String responseBody = EntityUtils.toString(response.getEntity());
-                        JSONObject jSONObject = new JSONObject(responseBody);
-                        JSONArray array = (JSONArray) jSONObject.get("results");
+                    try ( CloseableHttpResponse response = httpClient.execute(httpGet)) {
+                        int statusCode = response.getStatusLine().getStatusCode();
+                        if (statusCode == 200) {
+                            // HTTP 200 OK
+                            // Parse and print the response content
+                            String responseBody = EntityUtils.toString(response.getEntity());
+                            JSONObject jSONObject = new JSONObject(responseBody);
+                            JSONArray array = (JSONArray) jSONObject.get("results");
 
-                        if ("true".equals(getPropertyString("addEmptyOption"))) {
-                            FormRow emptyRow = new FormRow();
-                            emptyRow.setProperty(FormUtil.PROPERTY_VALUE, "");
-                            emptyRow.setProperty(FormUtil.PROPERTY_LABEL, getPropertyString("emptyLabel"));
-                            results.add(emptyRow);
+                            if ("true".equals(getPropertyString("addEmptyOption"))) {
+                                FormRow emptyRow = new FormRow();
+                                emptyRow.setProperty(FormUtil.PROPERTY_VALUE, "");
+                                emptyRow.setProperty(FormUtil.PROPERTY_LABEL, getPropertyString("emptyLabel"));
+                                results.add(emptyRow);
+                            }
+
+                            for (int i = 0; i < array.length(); i++) {
+                                FormRow r = new FormRow();
+                                JSONObject cabinet = (JSONObject) array.get(i);
+                                int id = (int) cabinet.get("id");
+                                String label = (String) cabinet.get("label");
+
+                                r.setProperty(FormUtil.PROPERTY_VALUE, String.valueOf(id));
+                                r.setProperty(FormUtil.PROPERTY_LABEL, label);
+                                results.add(r);
+                            }
+                        } else {
+                            System.err.println("HTTP Request failed with status code: " + statusCode);
                         }
-
-                        for (int i = 0; i < array.length(); i++) {
-                            FormRow r = new FormRow();
-                            JSONObject cabinet = (JSONObject) array.get(i);
-                            int id = (int) cabinet.get("id");
-                            String label = (String) cabinet.get("label");
-
-                            r.setProperty(FormUtil.PROPERTY_VALUE, String.valueOf(id));
-                            r.setProperty(FormUtil.PROPERTY_LABEL, label);
-                            results.add(r);
-                        }
-                    } else {
-                        System.err.println("HTTP Request failed with status code: " + statusCode);
+                        // Ensure the response is closed properly
                     }
-
-                    // Ensure the response is closed properly
-                    response.close();
                 } catch (IOException | ParseException ex) {
                     LogUtil.error(getClassName(), ex, ex.getMessage());
                 } finally {
@@ -151,7 +149,7 @@ public class MayanOptionBinder extends FormBinder implements FormLoadOptionsBind
                     }
                 }
             } else if (OPT_TAGS.equalsIgnoreCase(options)) {
-                String url = serverUrl + "/api/v4/tags/?_ordering=label";
+                String url = serverUrl + "/api/v4/tags/?_ordering=label&page_size=999999999";
                 CloseableHttpClient httpClient = HttpClients.createDefault();
 
                 try {
@@ -160,35 +158,35 @@ public class MayanOptionBinder extends FormBinder implements FormLoadOptionsBind
                     byte[] encodedAuth = java.util.Base64.getEncoder().encode(auth.getBytes());
                     String authHeader = "Basic " + new String(encodedAuth);
                     httpGet.setHeader(HttpHeaders.AUTHORIZATION, authHeader);
-                    CloseableHttpResponse response = httpClient.execute(httpGet);
-                    int statusCode = response.getStatusLine().getStatusCode();
-                    if (statusCode == 200) { // HTTP 200 OK
-                        // Parse and print the response content
-                        String responseBody = EntityUtils.toString(response.getEntity());
-                        JSONObject jSONObject = new JSONObject(responseBody);
-                        JSONArray array = (JSONArray) jSONObject.get("results");
+                    try ( CloseableHttpResponse response = httpClient.execute(httpGet)) {
+                        int statusCode = response.getStatusLine().getStatusCode();
+                        if (statusCode == 200) { // HTTP 200 OK
+                            // Parse and print the response content
+                            String responseBody = EntityUtils.toString(response.getEntity());
+                            JSONObject jSONObject = new JSONObject(responseBody);
+                            JSONArray array = (JSONArray) jSONObject.get("results");
 
-                        if ("true".equals(getPropertyString("addEmptyOption"))) {
-                            FormRow emptyRow = new FormRow();
-                            emptyRow.setProperty(FormUtil.PROPERTY_VALUE, "");
-                            emptyRow.setProperty(FormUtil.PROPERTY_LABEL, getPropertyString("emptyLabel"));
-                            results.add(emptyRow);
+                            if ("true".equals(getPropertyString("addEmptyOption"))) {
+                                FormRow emptyRow = new FormRow();
+                                emptyRow.setProperty(FormUtil.PROPERTY_VALUE, "");
+                                emptyRow.setProperty(FormUtil.PROPERTY_LABEL, getPropertyString("emptyLabel"));
+                                results.add(emptyRow);
+                            }
+
+                            for (int i = 0; i < array.length(); i++) {
+                                FormRow r = new FormRow();
+                                JSONObject cabinet = (JSONObject) array.get(i);
+                                int id = (int) cabinet.get("id");
+                                String label = (String) cabinet.get("label");
+
+                                r.setProperty(FormUtil.PROPERTY_VALUE, String.valueOf(id));
+                                r.setProperty(FormUtil.PROPERTY_LABEL, label);
+                                results.add(r);
+                            }
+                        } else {
+                            LogUtil.info(getClassName(), "HTTP Request failed with status code: " + statusCode);
                         }
-
-                        for (int i = 0; i < array.length(); i++) {
-                            FormRow r = new FormRow();
-                            JSONObject cabinet = (JSONObject) array.get(i);
-                            int id = (int) cabinet.get("id");
-                            String label = (String) cabinet.get("label");
-
-                            r.setProperty(FormUtil.PROPERTY_VALUE, String.valueOf(id));
-                            r.setProperty(FormUtil.PROPERTY_LABEL, label);
-                            results.add(r);
-                        }
-                    } else {
-                        LogUtil.info(getClassName(), "HTTP Request failed with status code: " + statusCode);
                     }
-                    response.close();
                 } catch (IOException | ParseException ex) {
                     LogUtil.error(getClassName(), ex, ex.getMessage());
                 } finally {
