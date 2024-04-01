@@ -209,7 +209,7 @@ public class MayanOptionBinder extends FormBinder implements FormLoadOptionsBind
 
     @Override
     public String getVersion() {
-        return "8.0.0";
+        return Activator.VERSION;
     }
 
     @Override

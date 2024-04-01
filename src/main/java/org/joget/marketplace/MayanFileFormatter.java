@@ -42,7 +42,7 @@ public class MayanFileFormatter extends DataListColumnFormatDefault {
             jsonParams.put("password", password);
 
             for (String v : values) {
-                if (v != null && !v.isEmpty()) {
+                if (v != null && !v.isEmpty() && v.indexOf('|') != -1) {
                     String[] verticalBarSplit = v.split("\\|");
                     if (verticalBarSplit.length > 0) {
                         String filename = verticalBarSplit[0];
@@ -78,7 +78,7 @@ public class MayanFileFormatter extends DataListColumnFormatDefault {
 
     @Override
     public String getVersion() {
-        return "8.0.1";
+        return Activator.VERSION;
     }
 
     @Override

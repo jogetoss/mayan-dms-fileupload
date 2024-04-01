@@ -29,6 +29,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.ParseException;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -72,7 +73,7 @@ public class MayanFileUpload extends Element implements FormBuilderPaletteElemen
 
     @Override
     public String getVersion() {
-        return "8.0.0";
+        return Activator.VERSION;
     }
 
     @Override
@@ -282,24 +283,42 @@ public class MayanFileUpload extends Element implements FormBuilderPaletteElemen
                         resultedValue.add(file.getName() + "|" + documentId);
                     } else {
                         if (remove != null && !value.isEmpty()) {
-                            remove.remove(value);
-                        }
-                        resultedValue.add(value);
+                            remove.removeIf(item -> {
+                                    if (item.contains(value)) {
+                                        resultedValue.add(item);
+                                        return true;
+                                    }
+                                return false;
+                            });
+                        }   
                     }
                 }
 
                 if (!filePaths.isEmpty()) {
-                    //result.putTempFilePath(id, filePaths.toArray(new String[]{}));
+                    result.putTempFilePath(id, filePaths.toArray(new String[]{}));
                 }
 
-                if (remove != null) {
+                if (remove != null && !remove.isEmpty() && !remove.contains("")) {
                     result.putDeleteFilePath(id, remove.toArray(new String[]{}));
+                    for (String r : remove) {
+                        Map<String, String> fileMap = parseFileName(r);
+                        String documentId = fileMap.get("documentId");
+                    
+                        if (documentId != null && !documentId.isEmpty()) {
+                            // delete file(s) from mayan
+                            deleteFileMayanDms(serverUrl + "/api/v4/documents/" + documentId + "/", username, password);                      
+                        }
+                    }
                 }
 
                 // formulate values
                 String delimitedValue = FormUtil.generateElementPropertyValues(resultedValue.toArray(new String[]{}));
                 String paramName = FormUtil.getElementParameterName(this);
                 formData.addRequestParameterValues(paramName, resultedValue.toArray(new String[]{}));
+
+                if (delimitedValue == null) {
+                    delimitedValue = "";
+                }
 
                 // set value into Properties and FormRowSet object
                 result.setProperty(id, delimitedValue);
@@ -385,6 +404,33 @@ public class MayanFileUpload extends Element implements FormBuilderPaletteElemen
             }
         }
         return documentId;
+    }
+
+    private void deleteFileMayanDms(String url, String username, String password) {
+        String responseBody = "";
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        try {
+            HttpDelete httpDelete = new HttpDelete(url);
+
+            String auth = username + ":" + password;
+            byte[] encodedAuth = java.util.Base64.getEncoder().encode(auth.getBytes());
+            String authHeader = "Basic " + new String(encodedAuth);
+            httpDelete.setHeader(HttpHeaders.AUTHORIZATION, authHeader);
+
+            HttpResponse response = httpClient.execute(httpDelete);
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode != 204) {
+                LogUtil.info(getClassName(), "HTTP Request failed with status code: " + statusCode);
+            }
+        } catch (IOException | ParseException | JSONException ex) {
+            LogUtil.error(getClassName(), ex, ex.getMessage());
+        } finally {
+            try {
+                httpClient.close();
+            } catch (IOException ex) {
+                LogUtil.error(getClassName(), ex, ex.getMessage());
+            }
+        }
     }
 
     private void assignedCabinet(String url, String username, String password, int documentId) {
