@@ -243,13 +243,15 @@ public class MayanFileUpload extends Element implements FormBuilderPaletteElemen
             serverUrl = serverUrl.substring(0, serverUrl.length() - 1);
         }
 
-        Set<String> remove = null;
-        if ("true".equals(getPropertyString("removeFile"))) {
-            remove = new HashSet<String>();
-            Form form = FormUtil.findRootForm(this);
-            String originalValues = formData.getLoadBinderDataProperty(form, id);
-            if (originalValues != null) {
+        Set<String> remove = new HashSet<String>();
+        Set<String> existing = new HashSet<String>();
+        Form form = FormUtil.findRootForm(this);
+        String originalValues = formData.getLoadBinderDataProperty(form, id);
+        if (originalValues != null) {
+            if ("true".equals(getPropertyString("removeFile"))) {
                 remove.addAll(Arrays.asList(originalValues.split(";")));
+            } else {
+                existing.addAll(Arrays.asList(originalValues.split(";")));
             }
         }
 
@@ -282,15 +284,25 @@ public class MayanFileUpload extends Element implements FormBuilderPaletteElemen
                         filePaths.add(value + "|" + documentId);
                         resultedValue.add(file.getName() + "|" + documentId);
                     } else {
-                        if (remove != null && !value.isEmpty()) {
-                            remove.removeIf(item -> {
+                         if(!value.isEmpty()){
+                            if (remove != null && !remove.isEmpty() && !remove.contains("")) {
+                                remove.removeIf(item -> {
+                                        if (item.contains(value)) {
+                                            resultedValue.add(item);
+                                            return true;
+                                        }
+                                    return false;
+                                });
+                            } else {
+                                existing.removeIf(item -> {
                                     if (item.contains(value)) {
                                         resultedValue.add(item);
                                         return true;
                                     }
-                                return false;
-                            });
-                        }   
+                                    return false;
+                                });
+                            }
+                        }
                     }
                 }
 
