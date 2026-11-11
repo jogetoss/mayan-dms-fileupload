@@ -25,6 +25,7 @@ import org.joget.apps.app.service.AppUtil;
 import org.joget.apps.form.model.Element;
 import org.joget.apps.form.model.FileDownloadSecurity;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.ParseException;
@@ -359,8 +360,10 @@ public class MayanFileUpload extends Element implements FormBuilderPaletteElemen
             if (statusCode == 200) { // HTTP 200 OK
                 String responseBody = EntityUtils.toString(response.getEntity());
                 JSONObject jSONObject = new JSONObject(responseBody);
-                JSONObject fileLatest = (JSONObject) jSONObject.get("file_latest");
-                downloadUrl = (String) fileLatest.get("download_url");
+                JSONObject fileLatest = jSONObject.optJSONObject("file_latest");
+                if (fileLatest != null) {
+                    downloadUrl = url + "files/" + fileLatest.getInt("id") + "/download/";
+                }
 
             } else {
                 LogUtil.info(getClassName(), "HTTP Request failed with status code: " + statusCode);
@@ -376,6 +379,39 @@ public class MayanFileUpload extends Element implements FormBuilderPaletteElemen
             }
         }
         return downloadUrl;
+    }
+
+    private void downloadFile(String url, String username, String password, HttpServletResponse response) throws IOException {
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        try {
+            HttpGet httpGet = new HttpGet(url);
+            String auth = username + ":" + password;
+            byte[] encodedAuth = java.util.Base64.getEncoder().encode(auth.getBytes());
+            String authHeader = "Basic " + new String(encodedAuth);
+            httpGet.setHeader(HttpHeaders.AUTHORIZATION, authHeader);
+            CloseableHttpResponse mayanResponse = httpClient.execute(httpGet);
+            try {
+                int statusCode = mayanResponse.getStatusLine().getStatusCode();
+                HttpEntity entity = mayanResponse.getEntity();
+                if (statusCode == 200 && entity != null) {
+                    if (entity.getContentType() != null) {
+                        response.setContentType(entity.getContentType().getValue());
+                    }
+                    Header disposition = mayanResponse.getFirstHeader("Content-Disposition");
+                    if (disposition != null) {
+                        response.setHeader("Content-Disposition", disposition.getValue());
+                    }
+                    entity.writeTo(response.getOutputStream());
+                } else {
+                    LogUtil.info(getClassName(), "HTTP Request failed with status code: " + statusCode);
+                    response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                }
+            } finally {
+                mayanResponse.close();
+            }
+        } finally {
+            httpClient.close();
+        }
     }
 
     private int uploadFileMayanDms(String url, String username, String password, File file, String documentTypeId) {
@@ -657,7 +693,13 @@ public class MayanFileUpload extends Element implements FormBuilderPaletteElemen
             String password = jsonParams.getString("password");
             // call the get document api and get the file id
             String downloadUrl = getDocument(serverUrl + "/api/v4/documents/" + documentId + "/", username, password);
-            response.sendRedirect(downloadUrl);
+            if (downloadUrl.isEmpty()) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            } else {
+                // send the file with the configured Mayan account: the browser has no Mayan session
+                downloadFile(downloadUrl, username, password, response);
+            }
+            return;
         }
 
         if (SecurityUtil.verifyNonce(nonce, new String[]{"FileUpload", appId, appVersion, paramName, fileType})) {
